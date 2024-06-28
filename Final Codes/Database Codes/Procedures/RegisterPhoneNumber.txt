@@ -1,0 +1,11 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `RegisterPhoneNumber`(
+    IN p_PhoneNumber VARCHAR(20),
+    IN p_EmployeeId INT
+)
+BEGIN
+
+
+		INSERT INTO employeephonenumber (`Employee Phone Number`, employeeId)
+		VALUES (p_PhoneNumber, p_EmployeeId);
+
+END

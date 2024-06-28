@@ -1,0 +1,54 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `viewMedicalReport`(
+    IN p_patientUsername VARCHAR(45),
+    OUT p_medicalReportsConcatenated LONGTEXT,
+    OUT p_doctorNamesConcatenated LONGTEXT
+)
+BEGIN
+
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE p_medicalReport LONGTEXT; 
+    DECLARE p_treatment LONGTEXT;      
+    DECLARE p_doctorUsername VARCHAR(45); 
+    DECLARE p_doctorName VARCHAR(150); 
+    
+    DECLARE cur_medical CURSOR FOR
+		SELECT `Medical Report`, Treatment, `Doctor Username`
+		FROM healthclinicpro.medicalreport
+		WHERE `Patient Username` = p_patientUsername;
+
+    
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+   
+    SET p_medicalReportsConcatenated = '';
+    SET p_doctorNamesConcatenated = '';
+
+
+    OPEN cur_medical;
+
+
+    medical_loop: LOOP
+        
+        FETCH cur_medical INTO p_medicalReport, p_treatment, p_doctorUsername;
+
+      
+        IF done THEN
+            LEAVE medical_loop;
+        END IF;
+
+
+        SELECT CONCAT_WS(' ', `Employee First Name`, `Employee Middle Name`, `Employee Last Name`)
+        INTO p_doctorName
+        FROM healthclinicpro.employee
+        JOIN healthclinicpro.employeelogin ON employee.ID = employeelogin.employeeId
+        WHERE employeelogin.Username = p_doctorUsername;
+
+        SET p_medicalReportsConcatenated = CONCAT_WS(p_medicalReportsConcatenated, 
+            '\nMedical Report: ', p_medicalReport, '\nTreatment: ', p_treatment);
+
+        SET p_doctorNamesConcatenated = CONCAT_WS(p_doctorNamesConcatenated, 
+            '\nDoctor Name: ', p_doctorName, '\n');
+    END LOOP;
+
+    CLOSE cur_medical;
+END

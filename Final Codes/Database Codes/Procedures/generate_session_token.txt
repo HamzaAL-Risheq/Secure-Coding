@@ -1,0 +1,22 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generate_session_token`(
+    IN p_username VARCHAR(255),
+    IN p_token_key VARCHAR(255),
+    OUT p_session_token VARCHAR(255), -- OUT parameter to return the session token
+    OUT p_user_role VARCHAR(255) -- OUT parameter to return the user role
+)
+BEGIN
+    DECLARE p_expiration_timestamp TIMESTAMP;
+
+    -- Generate a unique session token
+    SET p_session_token = SHA2(CONCAT(p_username, p_token_key, NOW()), 256);
+
+    -- Set the expiration timestamp (e.g., 1 hour from now)
+    SET p_expiration_timestamp = NOW() + INTERVAL 1 HOUR;
+
+    -- Retrieve the user role using the GetEmployeeRole procedure
+    CALL GetEmployeeRole(p_username, p_user_role);
+
+    -- Insert the session token into the session_tokens table with the retrieved user role
+    INSERT INTO session_tokens (username, token, expiration_timestamp, role)
+    VALUES (p_username, p_session_token, p_expiration_timestamp, p_user_role);
+END

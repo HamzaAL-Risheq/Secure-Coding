@@ -1,0 +1,28 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `RegisterEmployee`(
+    IN p_FirstName VARCHAR(50),
+    IN p_MiddleName VARCHAR(50),
+    IN p_LastName VARCHAR(50),
+    IN p_Age INT,
+    IN p_Gender ENUM('female', 'male'),
+    IN p_Role VARCHAR(50),
+    OUT p_Id INT
+)
+BEGIN
+   DECLARE employeeCount INT;
+
+    -- Check if the employee already exists based on the combination of names
+    SET employeeCount = EmployeeExists(p_FirstName, p_MiddleName, p_LastName);
+
+    -- If the combination exists, raise an exception
+    IF employeeCount > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Employee with the same name combination already exists';
+    ELSE
+        -- If the combination does not exist, proceed with the insertion
+        INSERT INTO employee (`Employee First Name`, `Employee Middle Name`, `Employee Last Name`, Age, Gender, Role)
+        VALUES (p_FirstName, p_MiddleName, p_LastName, p_Age, p_Gender, p_Role);
+
+        -- Get the ID of the newly inserted employee
+        SET p_Id = LAST_INSERT_ID();
+    END IF;
+END

@@ -1,0 +1,36 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `EmployeeLoginChecker`(
+    IN p_Username VARCHAR(45),
+    IN p_Password VARCHAR(256),
+    OUT p_Result VARCHAR(50),
+    OUT p_Role VARCHAR(10)
+)
+BEGIN
+    DECLARE v_StoredPassword VARCHAR(256);
+    DECLARE v_DecryptedSalt VARCHAR(256);
+    DECLARE v_HashedPassword VARCHAR(256);
+    DECLARE v_UserRole VARCHAR(50); -- Declare a local variable
+
+    -- Retrieve stored password
+    CALL GetStoredPassword(p_Username, @v_StoredPassword);
+    SET v_StoredPassword = @v_StoredPassword;
+
+    IF v_StoredPassword IS NOT NULL THEN
+
+        CALL DecryptSecret(p_Username, @v_DecryptedSalt);
+        SET v_DecryptedSalt = @v_DecryptedSalt;
+
+
+        
+        SET v_HashedPassword = SHA256_HASH(CONCAT(p_Password, v_DecryptedSalt));
+        IF v_StoredPassword = v_HashedPassword THEN
+  
+            CALL GetEmployeeRole(p_Username, v_UserRole);
+            SET p_Role = v_UserRole;
+            SET p_Result = 'SUCCESS';
+        ELSE
+            SET p_Result = 'In33valid username or password';
+        END IF;
+    ELSE
+        SET p_Result = 'Invalid username or password';
+    END IF;
+END

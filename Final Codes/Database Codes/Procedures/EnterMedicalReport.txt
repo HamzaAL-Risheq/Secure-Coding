@@ -1,0 +1,31 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `EnterMedicalReport`(	
+    IN p_patientUsername VARCHAR(45),
+    IN p_doctorUsername VARCHAR(45),
+    IN p_medicalReport LONGTEXT,
+    IN p_treatment LONGTEXT
+)
+BEGIN
+	DECLARE result VARCHAR(50); 
+	
+	SELECT employee.ROLE INTO result
+	FROM employeelogin
+	JOIN employee ON employeelogin.employeeId = employee.ID
+	WHERE employeelogin.Username = p_doctorUsername;
+	IF result = 'Doctor' THEN
+    -- Insert into medicalreport table if the role is 'Doctor'
+    INSERT INTO healthclinicpro.medicalreport 
+        (`Medical Report`, Treatment, `Patient Username`, `Doctor Username`)
+    VALUES 
+        (
+            p_medicalReport,
+            p_treatment,
+            p_patientUsername,
+            p_doctorUsername
+        );
+	ELSE
+		SIGNAL SQLSTATE '45000' 
+		SET MESSAGE_TEXT = 'Invalid role. Only Doctors are allowed to perform this action.';
+	END IF;
+
+   
+END

@@ -1,0 +1,52 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `viewPatientInfo`(	
+	IN p_Username varchar(50),
+    OUT patientFirstName  varchar(50),
+	OUT patientMiddleName  varchar(50),
+	OUT patientLastName varchar(50),
+    OUT Age INT,
+    OUT Gender ENUM('female', 'male'),
+    OUT phonenumber  varchar(10)
+)
+BEGIN
+		DECLARE v_patientFirstName varchar(50);
+        DECLARE v_patientMiddleName varchar(50);
+        DECLARE v_patientLastName varchar(50);
+        DECLARE v_Age INT;
+        DECLARE v_Gender ENUM('female', 'male');
+        DECLARE v_phonenumber varchar(10);
+		DECLARE Count int;
+       
+    SELECT COUNT(*) INTO Count
+    FROM patientlogin
+    WHERE Username = p_Username
+    LIMIT 1;
+   
+
+    IF Count < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Employee with the same name combination already exists';
+    ELSE
+		SELECT
+			patients.`Patient First Name`, patients.`Patient Middle Name`, patients.`Patient Last Name`,
+			patients.Age, patients.Gender, patients.`Phone Number`
+		INTO
+			v_patientFirstName, v_patientMiddleName, v_patientLastName,
+			v_Age, v_Gender, v_phonenumber
+		FROM
+			patientlogin 
+		JOIN
+			patients  ON patientlogin.PatientID = patients.id
+		WHERE
+			patientlogin.Username = p_Username
+		ORDER BY
+			patients.id
+			LIMIT 1;
+
+        SET patientFirstName= v_patientFirstName;
+        SET patientMiddleName =  v_patientMiddleName;
+        SET patientLastName = v_patientLastName;
+        SET Age = v_Age;
+        SET Gender = v_Gender;
+        SET phonenumber = v_phonenumber;
+	END IF;
+END

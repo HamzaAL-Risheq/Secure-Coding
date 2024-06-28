@@ -1,0 +1,80 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `calculate_levenshtein_distance`(
+	IN s1 VARCHAR(255), 
+	IN s2 VARCHAR(255), 
+	OUT result INT
+)
+BEGIN
+DECLARE s1_len, s2_len, i, j, c, c_temp, cost, result INT;
+DECLARE s1_char CHAR;
+
+-- Temporary table to store distances
+CREATE TEMPORARY TABLE IF NOT EXISTS distances (i INT, j INT, distance INT);
+
+SET s1_len = CHAR_LENGTH(s1);
+SET s2_len = CHAR_LENGTH(s2);
+
+-- Initialize the distances table
+TRUNCATE TABLE distances;
+INSERT INTO distances (i, j, distance) VALUES (0, 0, 0);
+
+-- Initialize the first row
+SET j = 1;
+WHILE j <= s2_len DO
+    INSERT INTO distances (i, j, distance) VALUES (0, j, j);
+    SET j = j + 1;
+END WHILE;
+
+-- Main dynamic programming loop
+SET i = 1;
+WHILE i <= s1_len DO
+    SET s1_char = SUBSTRING(s1, i, 1);
+
+    -- Initialize the first column of the current row
+    INSERT INTO distances (i, j, distance) VALUES (i, 0, i);
+
+    SET j = 1;
+    WHILE j <= s2_len DO
+        SET cost = IF(s1_char = SUBSTRING(s2, j, 1), 0, 1);
+
+        -- Calculate the minimum distance
+        SELECT MIN(distance + cost) INTO c
+        FROM distances
+        WHERE i = i - 1 AND j = j - 1;
+        
+        SELECT MIN(distance + 1) INTO c_temp
+        FROM distances
+        WHERE i = i AND j = j - 1;
+        
+        IF c_temp < c THEN
+            SET c = c_temp;
+        END IF;
+
+        SELECT MIN(distance + 1) INTO c_temp
+        FROM distances
+        WHERE i = i - 1 AND j = j;
+        
+        IF c_temp < c THEN
+            SET c = c_temp;
+        END IF;
+
+        -- Update the current cell with the minimum distance
+        INSERT INTO distances (i, j, distance) VALUES (i, j, c);
+
+        SET j = j + 1;
+    END WHILE;
+
+    SET i = i + 1;
+END WHILE;
+
+-- Retrieve the final Levenshtein distance
+SELECT distance INTO result
+FROM distances
+WHERE i = s1_len AND j = s2_len;
+
+-- Set the result variable
+SET @result = result;
+
+-- Drop the temporary table
+DROP TEMPORARY TABLE IF EXISTS distances;
+
+END

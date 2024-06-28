@@ -1,0 +1,33 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `RegisterPatient`(
+    IN p_FirstName VARCHAR(50),
+    IN p_MiddleName VARCHAR(50),
+    IN p_LastName VARCHAR(50),
+    IN p_Age INT,
+    IN p_Gender ENUM('female', 'male'),
+    IN p_phonenumber VARCHAR(10),
+    OUT p_paitentID INT
+)
+BEGIN
+    DECLARE patientCount INT;
+
+    -- Check if the employee already exists based on the combination of names
+    SELECT COUNT(*) INTO patientCount
+    FROM patients
+    WHERE `Patient First Name` = p_FirstName 
+        AND `Patient Middle Name` = p_MiddleName 
+        AND `Patient Last Name` = p_LastName;
+
+    -- If the combination exists, raise an exception
+    IF patientCount > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Employee with the same name  already exists';
+    ELSE
+        -- If the combination does not exist, proceed with the insertion
+        INSERT INTO patients (`Patient First Name`, `Patient Middle Name`, `Patient Last Name`, Age, Gender, `Phone Number`)
+        VALUES (p_FirstName, p_MiddleName, p_LastName, p_Age, p_Gender,p_phonenumber);
+        
+		SET p_paitentID = LAST_INSERT_ID();
+        -- Get the ID of the newly inserted employee
+        -- SET p_Id = LAST_INSERT_ID();
+    END IF;
+END

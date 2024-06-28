@@ -1,0 +1,23 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `GetEmployeeRole`(
+    IN p_Username VARCHAR(45),
+    OUT p_Role VARCHAR(50)
+)
+BEGIN
+    DECLARE v_employee_id INT;
+
+
+    SELECT employeeId INTO v_employee_id
+    FROM employeelogin
+    WHERE username = p_Username
+    LIMIT 1;
+
+
+    IF v_employee_id IS NOT NULL THEN
+        SELECT Role INTO p_Role
+        FROM employee
+        WHERE id = v_employee_id
+        LIMIT 1;
+    ELSE
+        SET p_Role = NULL; -- or any default value indicating that the user doesn't exist
+    END IF;
+END

@@ -1,0 +1,62 @@
+CREATE DEFINER=`root`@`localhost` PROCEDURE `viewEmployeeInfo`(	
+	IN p_Username varchar(50),
+    OUT p_employeeFirstName  varchar(50),
+	OUT p_employeeMiddleName  varchar(50),
+	OUT p_employeeLastName varchar(50),
+    OUT p_Age INT,
+    OUT p_Gender ENUM('female', 'male'),
+    OUT p_phoneNumber varchar(50),
+    OUT p_Role  varchar(50)
+)
+BEGIN
+		DECLARE employeeCount INT;
+		DECLARE v_employeeId INT;
+		DECLARE v_EmployeeFirstName varchar(50);
+        DECLARE v_EmployeeMiddleName varchar(50);
+        DECLARE v_EmployeeLastName varchar(50);
+        DECLARE v_Age INT;
+        DECLARE v_Gender ENUM('female', 'male');
+        DECLARE v_Role varchar(50);
+		DECLARE v_phonNumber varchar(50);
+		declare Count int;
+       
+    -- Check if the employee already exists based on the combination of names
+    SELECT COUNT(*) INTO Count
+    FROM employeelogin
+    WHERE username = p_Username
+    LIMIT 1;
+   
+    -- If the combination exists, raise an exception
+    IF Count < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Employee with the same name combination already exists';
+    ELSE
+		SELECT
+			employee.ID, employee.`Employee First Name`, employee.`Employee Middle Name`, employee.`Employee Last Name`,
+			employee.Age, employee.Gender, employee.Role
+		INTO
+			v_employeeId, v_EmployeeFirstName, v_EmployeeMiddleName, v_EmployeeLastName,
+			v_Age, v_Gender, v_Role
+		FROM
+			employeelogin 
+		JOIN
+			employee  ON employeelogin.employeeId = employee.ID
+		WHERE
+			employeelogin.username = p_Username
+		ORDER BY
+			employee.id
+			LIMIT 1;
+
+        SELECT GROUP_CONCAT(`Employee Phone Number`) 
+        INTO p_phoneNumber
+        FROM healthclinicpro.employeephonenumber
+        WHERE employeeId = v_employeeId;
+        
+        SET p_employeeFirstName= v_EmployeeFirstName;
+        SET p_employeeMiddleName = v_EmployeeMiddleName;
+        SET p_employeeLastName = v_EmployeeLastName;
+        SET p_Age = v_Age;
+        SET p_Gender = v_Gender;
+        SET p_Role = v_Role;
+	END IF;
+END
