@@ -1,0 +1,18 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `PatientExists`( 
+    p_FirstName VARCHAR(50),
+    p_MiddleName VARCHAR(50),
+    p_LastName VARCHAR(50)
+) RETURNS int
+    DETERMINISTIC
+BEGIN
+    DECLARE patientCount INT;
+
+    -- Check if the employee already exists based on the combination of names
+    SELECT COUNT(*) INTO patientCount
+    FROM patients
+    WHERE `Patient First Name` = p_FirstName 
+        AND `Patient Middle Name` = p_MiddleName 
+        AND `Patient Last Name` = p_LastName;
+
+    RETURN patientCount;
+END

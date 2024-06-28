@@ -1,0 +1,46 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `LevenshteinDistance`(s1 VARCHAR(255), s2 VARCHAR(255)) RETURNS int
+    DETERMINISTIC
+BEGIN
+    DECLARE s1_len, s2_len, i, j, c, c_temp, cost INT;
+    DECLARE s1_char CHAR;
+DECLARE d1, d2, min_cost INT;
+    SET s1_len = CHAR_LENGTH(s1);
+    SET s2_len = CHAR_LENGTH(s2);
+
+    
+
+    IF s1_len = 0 THEN
+        RETURN s2_len;
+    END IF;
+
+    IF s2_len = 0 THEN
+        RETURN s1_len;
+    END IF;
+
+    SET i = 0;
+
+    WHILE i <= s1_len DO
+        SET d1 = i;
+        SET j = 1;
+
+        WHILE j <= s2_len DO
+            SET s1_char = SUBSTRING(s1, i + 1, 1);
+            SET cost = IF(SUBSTRING(s2, j, 1) = s1_char, 0, 1);
+
+            SET c_temp = LEAST(d2 + 1, d1 + 1, d1 + cost);
+            SET d1 = d2;
+            SET d2 = c_temp;
+
+            IF i > 0 AND j > 1 THEN
+                SET min_cost = (SELECT LEAST(d2, d1, (SELECT value FROM temp_d WHERE idx = i - 1) + cost));
+                UPDATE temp_d SET value = min_cost WHERE idx = i;
+            END IF;
+
+            SET j = j + 1;
+        END WHILE;
+
+        SET i = i + 1;
+    END WHILE;
+
+    RETURN d2;
+END

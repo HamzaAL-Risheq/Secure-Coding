@@ -1,0 +1,15 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `countCharacters`(input VARCHAR(255), characters VARCHAR(255)) RETURNS int
+    DETERMINISTIC
+BEGIN
+    DECLARE count INT DEFAULT 0;
+    DECLARE i INT DEFAULT 1;
+
+    WHILE i <= LENGTH(input) DO
+        IF LOCATE(SUBSTRING(input, i, 1), characters) > 0 THEN
+            SET count = count + 1;
+        END IF;
+        SET i = i + 1;
+    END WHILE;
+
+    RETURN count;
+END

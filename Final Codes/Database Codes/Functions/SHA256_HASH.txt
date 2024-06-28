@@ -1,0 +1,7 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `SHA256_HASH`(input_string VARCHAR(255)) RETURNS varchar(64) CHARSET utf8mb4
+    DETERMINISTIC
+BEGIN
+    DECLARE hash_result VARCHAR(64);
+    SET hash_result = SHA2(input_string, 256);
+    RETURN hash_result;
+END

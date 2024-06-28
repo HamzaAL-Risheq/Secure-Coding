@@ -1,0 +1,18 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `EmployeeExists`( 
+    p_FirstName VARCHAR(50),
+    p_MiddleName VARCHAR(50),
+    p_LastName VARCHAR(50)
+) RETURNS int
+    DETERMINISTIC
+BEGIN
+    DECLARE employeeCount INT;
+
+    -- Check if the employee already exists based on the combination of names
+    SELECT COUNT(*) INTO employeeCount
+    FROM employee
+    WHERE `Employee First Name` = p_FirstName 
+        AND `Employee Middle Name` = p_MiddleName 
+        AND `Employee Last Name` = p_LastName;
+
+    RETURN employeeCount;
+END

@@ -1,0 +1,15 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `isPredictable`(password VARCHAR(255)) RETURNS tinyint(1)
+    DETERMINISTIC
+BEGIN
+    DECLARE patternLength INT DEFAULT 2;
+    DECLARE i INT DEFAULT 1;
+
+    WHILE i <= LENGTH(password) - patternLength DO
+        IF SUBSTRING(password, i, patternLength) = SUBSTRING(password, i + patternLength, patternLength) THEN
+            RETURN TRUE;
+        END IF;
+        SET i = i + 1;
+    END WHILE;
+
+    RETURN FALSE;
+END
