@@ -1,0 +1,30 @@
+$ cd ~/Desktop/FinalSubmissionSecureCoding/HealthclinicproCodeVersions
+$ git init
+$ git branch -M main
+$ git status
+$ git add .
+$ git add <filepath>
+$ git config --global user.email "hamzaalrisheq@gmail.com"
+$ git config --global user.name "HamzahS"
+$ git commit -m "Original Copy"
+$ git log 
+$ git log --oneline
+$ git log -b
+$ git log -p
+ q == quit (if u entered git log -p and u want to exist this mode)
+$ git commit -a -m "Message" (add and commiting all the file directly in one command)
+We build text document name .gitignore to ignore the class contain inside the .gitignore file.
+:wq to exit vi editor
+##################################
+When I want to do git revert
+$ git revert <hashcodeofthefile>
+$ git add <filepath>
+$ git revert --continue
+##################################
+$ git checkout <filepath>
+##################################
+$ git branch <branchname>
+$ git branch (to know am in which branch)
+$ git switch <branchname> (to go to anther branch)
+##################################
+$ git merge -m "Message"  <withwhichbranch>

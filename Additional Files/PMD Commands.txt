@@ -1,0 +1,23 @@
+cd C:\Users\USER\Desktop\pmd-dist-7.0.0-rc4-bin\pmd-bin-7.0.0-rc4\bin
+.\pmd check -f text -R rulesets/java/quickstart.xml
+.\pmd.bat check -f text -R rulesets/java/quickstart.xml -d C:\Users\USER\eclipse-workspace\SecureCodingConsolePrototype\src\main\java
+
+
+
+
+
+cd "C:\Users\USER\Desktop\pmd-dist-7.0.0-rc4-bin\pmd-bin-7.0.0-rc4\bin"
+.\pmd.bat check -d "C:\Users\USER\eclipse-workspace\SecureCodingConsolePrototype\src\main\java" -R "rulesets/java/quickstart.xml" -f text -r "C:\Users\USER\Desktop\outputFileSAT.txt"
+
+
+
+.\pmd.bat check -d "C:\Users\USER\eclipse-workspace\SecureCodingConsolePrototype\src\main\java" -R "rulesets/java/quickstart.xml" -f csv -r "C:\Users\USER\Desktop\outputFileSAT.csv"
+
+
+pmd.bat check -f text -R rulesets/java/quickstart.xml --dir "C:\Users\USER\Desktop\test3.txt" 
+
+
+
+
+
+
